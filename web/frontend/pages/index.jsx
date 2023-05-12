@@ -8,6 +8,7 @@ import {
 } from "@shopify/polaris";
 
 import { QRCodeIndex } from "../components";
+import { useAppQuery } from "../hooks";
 
 export default function HomePage() {
   /*
