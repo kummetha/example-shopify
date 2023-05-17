@@ -67,13 +67,8 @@ destination: string
 */
 export async function parseQrCodeBody(req, res) {
   return {
-    title: req.body.title,
-    productId: req.body.productId,
-    variantId: req.body.variantId,
-    handle: req.body.handle,
-    discountId: req.body.discountId,
-    discountCode: req.body.discountCode,
-    destination: req.body.destination,
+    skin_tone: req.body.skin_tone,
+    age: req.body.age,
   };
 }
 

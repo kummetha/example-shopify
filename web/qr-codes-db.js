@@ -16,32 +16,22 @@ export const QRCodesDB = {
 
   create: async function ({
     shopDomain,
-    title,
-    productId,
-    variantId,
-    handle,
-    discountId,
-    discountCode,
-    destination,
+    skin_tone,
+    age,
   }) {
     await this.ready;
 
     const query = `
       INSERT INTO ${this.qrCodesTableName}
-      (shopDomain, title, productId, variantId, handle, discountId, discountCode, destination, scans)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
+      (shopDomain, skin_tone, age)
+      VALUES (?, ?, ?)
       RETURNING id;
     `;
 
     const rawResults = await this.__query(query, [
       shopDomain,
-      title,
-      productId,
-      variantId,
-      handle,
-      discountId,
-      discountCode,
-      destination,
+      skin_tone, 
+      age,
     ]);
 
     return rawResults[0].id;
@@ -50,13 +40,8 @@ export const QRCodesDB = {
   update: async function (
     id,
     {
-      title,
-      productId,
-      variantId,
-      handle,
-      discountId,
-      discountCode,
-      destination,
+      skin_tone, 
+      age,
     }
   ) {
     await this.ready;
@@ -64,25 +49,15 @@ export const QRCodesDB = {
     const query = `
       UPDATE ${this.qrCodesTableName}
       SET
-        title = ?,
-        productId = ?,
-        variantId = ?,
-        handle = ?,
-        discountId = ?,
-        discountCode = ?,
-        destination = ?
+        skin_tone = ?, 
+        age = ?
       WHERE
         id = ?;
     `;
 
     await this.__query(query, [
-      title,
-      productId,
-      variantId,
-      handle,
-      discountId,
-      discountCode,
-      destination,
+      skin_tone, 
+      age,
       id,
     ]);
     return true;
@@ -177,21 +152,18 @@ export const QRCodesDB = {
 
     if (hasQrCodesTable) {
       this.ready = Promise.resolve();
-
+      /*const query = `
+      DROP TABLE IF EXISTS ${this.qrCodesTableName}';
+      `;
+      this.ready = this.__query(query); */
       /* Create the QR code table if it hasn't been created */
     } else {
       const query = `
         CREATE TABLE ${this.qrCodesTableName} (
           id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
           shopDomain VARCHAR(511) NOT NULL,
-          title VARCHAR(511) NOT NULL,
-          productId VARCHAR(255) NOT NULL,
-          variantId VARCHAR(255) NOT NULL,
-          handle VARCHAR(255) NOT NULL,
-          discountId VARCHAR(255) NOT NULL,
-          discountCode VARCHAR(255) NOT NULL,
-          destination VARCHAR(255) NOT NULL,
-          scans INTEGER,
+          skin_tone VARCHAR(255) NOT NULL,
+          age INTEGER,
           createdAt DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime'))
         )
       `;

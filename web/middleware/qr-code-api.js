@@ -146,4 +146,21 @@ export default function applyQrCodeApiEndpoints(app) {
       res.status(200).send();
     }
   });
+
+  app.get("/api/get_hero_image", async (req, res) => {
+    try {
+      const id = await QRCodesDB.get({
+        ...(await parseQrCodeBody(req)),
+
+        /* Get the shop from the authorization header to prevent users from spoofing the data */
+        shopDomain: await getShopUrlFromSession(req, res),
+      });
+      const response = await formatQrCodeResponse(req, res, [
+        await QRCodesDB.read(id),
+      ]);
+      res.status(201).send(response[0]);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
 }

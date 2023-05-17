@@ -54,11 +54,15 @@ export function QRCodeForm({ QRCode: InitialQRCode }) {
     const onSubmit = useCallback(
         (body) => {
           (async () => {
+            console.log("printing the body")
+            console.log(body)
             const parsedBody = body;
-            parsedBody.destination = parsedBody.destination[0];
+            //parsedBody.destination = parsedBody.destination[0];
             const QRCodeId = QRCode?.id;
+            console.log(QRCodeId)
             /* construct the appropriate URL to send the API request to based on whether the QR code is new or being updated */
             const url = QRCodeId ? `/api/qrcodes/${QRCodeId}` : "/api/qrcodes";
+            console.log(url)
             /* a condition to select the appropriate HTTP method: PATCH to update a QR code or POST to create a new QR code */
             const method = QRCodeId ? "PATCH" : "POST";
             /* use (authenticated) fetch from App Bridge to send the request to the API and, if successful, clear the form to reset the ContextualSaveBar and parse the response JSON */
@@ -70,13 +74,23 @@ export function QRCodeForm({ QRCode: InitialQRCode }) {
             if (response.ok) {
               makeClean();
               const QRCode = await response.json();
+              /*const url = "/api/get_hero_image";
+              const method = "GET";
+              const response = await fetch(url, {
+                method,
+                body: JSON.stringify(parsedBody),
+                headers: { "Content-Type": "application/json" },
+              });*/
+              /*
               /* if this is a new QR code, then save the QR code and navigate to the edit page; this behavior is the standard when saving resources in the Shopify admin */
+              /*
               if (!QRCodeId) {
-                navigate(`/qrcodes/${QRCode.id}`);
+                navigate(`/qrcodes/${QRCode.id}`);*/
                 /* if this is a QR code update, update the QR code state in this component */
-              } else {
+              //} 
+              /*else {
                 setQRCode(QRCode);
-              }
+              }*/
             }
           })();
           return { status: "success" };
@@ -104,6 +118,8 @@ export function QRCodeForm({ QRCode: InitialQRCode }) {
       discountId,
       discountCode,
       destination,
+      skin_tone,
+      age
     },
     dirty,
     reset,
@@ -112,21 +128,14 @@ export function QRCodeForm({ QRCode: InitialQRCode }) {
     makeClean,
   } = useForm({
     fields: {
-      title: useField({
-        value: QRCode?.title || "",
-        validates: [notEmptyString("Please name your QR code")],
+      skin_tone: useField({
+        value: QRCode?.age || "",
+        validates: [notEmptyString("Please name your skin_tone")],
       }),
-      productId: useField({
-        value: deletedProduct ? "Deleted product" : QRCode?.product?.id || "",
-        validates: [notEmptyString("Please select a product")],
+      age: useField({
+        value: QRCode?.skin_tone || "",
+        validates: [notEmptyString("Please name your age")],
       }),
-      variantId: useField(QRCode?.variantId || ""),
-      handle: useField(QRCode?.handle || ""),
-      destination: useField(
-        QRCode?.destination ? [QRCode.destination] : ["product"]
-      ),
-      discountId: useField(QRCode?.discountId || NO_DISCOUNT_OPTION.value),
-      discountCode: useField(QRCode?.discountCode || ""),
     },
     onSubmit,
   });
@@ -286,146 +295,24 @@ export function QRCodeForm({ QRCode: InitialQRCode }) {
               fullWidth
             />
             <FormLayout>
-              <Card sectioned title="Title">
+
+              <Card sectioned title="Skin Tone">
                 <TextField
-                  {...title}
-                  label="Title"
+                  {...skin_tone}
+                  label="skin_tone"
                   labelHidden
-                  helpText="Only store staff can see this title"
                 />
               </Card>
 
-              <Card
-                title="Product"
-                actions={[
-                  {
-                    content: productId.value
-                      ? "Change product"
-                      : "Select product",
-                    onAction: toggleResourcePicker,
-                  },
-                ]}
-              >
-                <Card.Section>
-                  {showResourcePicker && (
-                    <ResourcePicker
-                      resourceType="Product"
-                      showVariants={false}
-                      selectMultiple={false}
-                      onCancel={toggleResourcePicker}
-                      onSelection={handleProductChange}
-                      open
-                    />
-                  )}
-                  {productId.value ? (
-                    <Stack alignment="center">
-                      {imageSrc || originalImageSrc ? (
-                        <Thumbnail
-                          source={imageSrc || originalImageSrc}
-                          alt={altText}
-                        />
-                      ) : (
-                        <Thumbnail
-                          source={ImageMajor}
-                          color="base"
-                          size="small"
-                        />
-                      )}
-                      <TextStyle variation="strong">
-                        {selectedProduct.title}
-                      </TextStyle>
-                    </Stack>
-                  ) : (
-                    <Stack vertical spacing="extraTight">
-                      <Button onClick={toggleResourcePicker}>
-                        Select product
-                      </Button>
-                      {productId.error && (
-                        <Stack spacing="tight">
-                          <Icon source={AlertMinor} color="critical" />
-                          <TextStyle variation="negative">
-                            {productId.error}
-                          </TextStyle>
-                        </Stack>
-                      )}
-                    </Stack>
-                  )}
-                </Card.Section>
-                <Card.Section title="Scan Destination">
-                  <ChoiceList
-                    title="Scan destination"
-                    titleHidden
-                    choices={[
-                      { label: "Link to product page", value: "product" },
-                      {
-                        label: "Link to checkout page with product in the cart",
-                        value: "checkout",
-                      },
-                    ]}
-                    selected={destination.value}
-                    onChange={destination.onChange}
-                  />
-                </Card.Section>
-              </Card>
-              <Card
-                sectioned
-                title="Discount"
-                actions={[
-                  {
-                    content: "Create discount",
-                    onAction: () =>
-                      navigate(
-                        {
-                          name: "Discount",
-                          resource: {
-                            create: true,
-                          },
-                        },
-                        { target: "new" }
-                      ),
-                  },
-                ]}
-              >
-                <Select
-                  label="discount code"
-                  options={discountOptions}
-                  onChange={handleDiscountChange}
-                  value={discountId.value}
-                  disabled={isLoadingShopData || shopDataError}
+              <Card sectioned title="Age">
+                <TextField
+                  {...age}
+                  label="age"
                   labelHidden
                 />
               </Card>
             </FormLayout>
           </Form>
-        </Layout.Section>
-        <Layout.Section secondary>
-          <Card sectioned title="QR code">
-            {QRCode ? (
-              <EmptyState imageContained={true} image={QRCodeURL} />
-            ) : (
-              <EmptyState>
-                <p>Your QR code will appear here after you save.</p>
-              </EmptyState>
-            )}
-            <Stack vertical>
-              <Button
-                fullWidth
-                primary
-                download
-                url={QRCodeURL}
-                disabled={!QRCode || isDeleting}
-              >
-                Download
-              </Button>
-              <Button
-                fullWidth
-                onClick={goToDestination}
-                disabled={!selectedProduct || isLoadingShopData}
-              >
-                Go to destination
-              </Button>
-            </Stack>
-          </Card>
         </Layout.Section>
         <Layout.Section>
           {QRCode?.id && (
